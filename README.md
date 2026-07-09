@@ -6,6 +6,8 @@ Kern der Lösung ist ein Docker-Container, eine OpenCode-TUI in einem Web-Termin
 
 AgentBox ist **provider-agnostisch**: Welches Sprachmodell verwendet wird, entscheidet allein die OpenCode-Konfiguration, die Du über das Zahnrad-Icon in der Web-UI setzt. Damit läuft die AgentBox mit jedem OpenAI-kompatiblen Endpoint (OpenAI, OpenRouter, Groq, lokales Ollama/vLLM u.v.m.) oder einem OpenCode-nativen Provider.
 
+![AgentBox Web-UI](assets/screenshots/agentbox-ui.webp)
+
 ## Die Grundidee: agentisches Arbeiten zentral bereitstellen
 
 AgentBox ist mehr als ein lokales Werkzeug — die eigentliche strategische Idee liegt auf der **Bereitstellungsebene**. Eine Organisation kann ihren Mitarbeitenden fertige, isolierte Agenten-Umgebungen zur Verfügung stellen, die bereits **vorkonfiguriert** sind: mit passenden Skills und Agenten, hinterlegten Werkzeugen und voreingestellter OpenCode-Konfiguration (Provider, Modell, Berechtigungen).
