@@ -1,0 +1,71 @@
+site_name: AgentBox
+site_description: Browserbasierte, isolierte Arbeitsumgebung für KI-Agenten
+site_url: ""
+docs_dir: docs
+site_dir: public
+use_directory_urls: true
+
+theme:
+  name: material
+  custom_dir: overrides
+  language: de
+  logo: assets/logo.svg
+  favicon: assets/favicon.svg
+  features:
+    - navigation.sections
+    - navigation.expand
+    - navigation.indexes
+    - search.highlight
+    - search.suggest
+    - content.code.copy
+    - toc.follow
+  palette:
+    - scheme: default
+      primary: teal
+      accent: teal
+      toggle:
+        icon: material/brightness-7
+        name: Dunkles Theme
+    - scheme: slate
+      primary: teal
+      accent: teal
+      toggle:
+        icon: material/brightness-4
+        name: Helles Theme
+
+nav:
+  - Übersicht: index.md
+  - Dateisystem: workspace.md
+  - Agent: agent.md
+  - Modelle: modelle.md
+  - Entwicklung:
+    - developers/index.md
+    - Architektur:
+      - developers/architecture/overview.md
+      - developers/architecture/volumes.md
+      - developers/architecture/files-api.md
+      - developers/architecture/frontend.md
+    - Agent: developers/agents.md
+    - Betrieb:
+      - developers/operations/hosting.md
+      - developers/operations/authentifizierung.md
+      - developers/operations/security.md
+      - developers/operations/performance.md
+
+markdown_extensions:
+  - admonition
+  - attr_list
+  - md_in_html
+  - tables
+  - toc:
+      permalink: true
+  - pymdownx.details
+  - pymdownx.superfences:
+      custom_fences:
+        - name: mermaid
+          class: mermaid
+          format: !!python/name:pymdownx.superfences.fence_code_format
+  - pymdownx.highlight:
+      anchor_linenums: true
+  - pymdownx.tabbed:
+      alternate_style: true

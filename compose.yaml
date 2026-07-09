@@ -1,0 +1,59 @@
+name: agentbox
+
+services:
+  agentbox:
+    build: .
+    ports:
+      # Web-UI HTTP: Host-Bind/Host-Port → Container :8080.
+      # Aktiv, wenn APP_DOMAIN leer bleibt (Default). Loopback-Default,
+      # weil das Session-Cookie im HTTP-Modus ohne Secure-Flag gesetzt
+      # wird — ausserhalb von Loopback nur in vertrauenswürdigem Netz
+      # oder mit TLS-Modus.
+      - "${HOST_BIND:-127.0.0.1}:${HOST_PORT:-80}:8080"
+      # Web-UI HTTPS: Host-Bind/Host-Port → Container :8443.
+      # Aktiv, wenn APP_DOMAIN gesetzt ist. Defaults sind so gewählt,
+      # dass ein nicht genutztes Mapping unauffällig im Hintergrund
+      # bleibt; bei Konflikt setzt der Sysadmin HTTPS_BIND/HTTPS_PORT.
+      - "${HTTPS_BIND:-127.0.0.1}:${HTTPS_PORT:-443}:8443"
+      # SMB: Standard-Port 445 außen wie innen. Bei lokalem Betrieb über
+      # localhost hat das keinen Wert — das SMB-Modal blendet den Mount-Pfad
+      # in dem Fall aus. Der Port ist trotzdem belegt; wer ihn nicht braucht,
+      # setzt SMB_BIND auf eine ungenutzte Adresse oder kommentiert die Zeile aus.
+      - "${SMB_BIND:-0.0.0.0}:${SMB_PORT:-445}:445"
+    environment:
+      # Pflicht: Passwort für die Session-Auth. Ohne diese Variable
+      # verweigert docker compose den Start (siehe :?).
+      APP_PASSWORD: ${APP_PASSWORD:?APP_PASSWORD muss gesetzt sein – Login ist Pflicht}
+      # Optional: Hostname, unter dem die Web-UI erreicht wird. Leer →
+      # HTTP auf Loopback (Default). Gesetzt → HTTPS auf :8443 (Container)
+      # bzw. ${HTTPS_PORT} (Host).
+      APP_DOMAIN: ${APP_DOMAIN:-}
+      # Optional: Pfade zu Cert/Key im Container. Wenn beide gesetzt sind,
+      # nutzt Caddy dieses Cert. Wenn leer (aber APP_DOMAIN gesetzt), nutzt
+      # Caddy seine eingebaute lokale CA (selbstsigniertes Cert, Browser
+      # zeigt Warnung bis Root-Cert auf dem Client importiert wurde).
+      # Für Production: Cert von der internen CA der IT bereitstellen lassen
+      # und per Volume mounten (siehe `volumes` unten).
+      APP_TLS_CERT: ${APP_TLS_CERT:-}
+      APP_TLS_KEY: ${APP_TLS_KEY:-}
+      # SMB-Feature-Schalter. Default an; "0", "false", "no" oder "off"
+      # deaktiviert smbd-Start und blendet den Netzlaufwerk-Button im
+      # Frontend aus (über /api/features).
+      SMB_ENABLED: ${SMB_ENABLED:-1}
+      SMB_PORT: ${SMB_PORT:-445}
+      SMB_PASSWORD: ${SMB_PASSWORD:-}
+    volumes:
+      - workspace:/workspace
+      - agent-home:/home/agent
+      # Cert-Mount für APP_TLS_CERT/APP_TLS_KEY. Default-Beispiel
+      # auskommentiert; Sysadmin aktiviert + passt den Host-Pfad an.
+      # - /etc/agentbox/certs:/certs:ro
+    cap_drop:
+      - ALL
+    cap_add:
+      - NET_BIND_SERVICE
+    restart: unless-stopped
+
+volumes:
+  workspace:
+  agent-home:

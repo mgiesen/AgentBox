@@ -1,0 +1,94 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>AgentBox – Anmeldung</title>
+<link rel="icon" type="image/svg+xml" href="/assets/favicon.svg">
+<link rel="stylesheet" href="/assets/open-props.min.css">
+<style>
+  html, body { height: 100%; margin: 0; background: #080808; color: #e8eaed; font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; }
+  .wrap { min-height: 100%; display: grid; place-items: center; padding: var(--size-4, 1rem); }
+  .card { width: min(360px, 100%); display: flex; flex-direction: column; gap: var(--size-4, 1rem); }
+  h1 { font-size: 1.5rem; font-weight: 600; margin: 0; text-align: center; color: #cfd1d4; }
+  h1 .accent { color: #179c7d; }
+  form { display: flex; flex-direction: column; gap: var(--size-3, 0.75rem); }
+  label { display: flex; flex-direction: column; gap: var(--size-2, 0.5rem); font-size: 0.875rem; color: #cfd1d4; }
+  input[type="password"] {
+    background: #141416;
+    color: #e8eaed;
+    border: 1px solid #2a2a2d;
+    border-radius: 6px;
+    padding: 0.625rem 0.75rem;
+    font: inherit;
+    outline: none;
+  }
+  input[type="password"]:focus { border-color: #179c7d; }
+  button {
+    background: #179c7d;
+    color: #ffffff;
+    border: none;
+    border-radius: 6px;
+    padding: 0.625rem 0.75rem;
+    font: inherit;
+    font-weight: 600;
+    cursor: pointer;
+  }
+  button:hover { background: #14876b; }
+  button:disabled { opacity: 0.6; cursor: progress; }
+  .error {
+    color: #ff6b6b;
+    font-size: 0.875rem;
+    text-align: center;
+    min-height: 1.25rem;
+  }
+</style>
+</head>
+<body>
+<main class="wrap">
+  <div class="card">
+    <h1>Agent<span class="accent">Box</span></h1>
+    <form id="login-form" autocomplete="on">
+      <label>
+        Passwort
+        <input type="password" name="password" id="password" autocomplete="current-password" required autofocus>
+      </label>
+      <button type="submit" id="submit">Anmelden</button>
+      <p class="error" id="error" role="alert" aria-live="polite"></p>
+    </form>
+  </div>
+</main>
+<script>
+  const form = document.getElementById('login-form');
+  const pw = document.getElementById('password');
+  const btn = document.getElementById('submit');
+  const err = document.getElementById('error');
+
+  form.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    err.textContent = '';
+    btn.disabled = true;
+    try {
+      const res = await fetch('/api/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ password: pw.value }),
+        credentials: 'same-origin',
+      });
+      if (res.ok) {
+        // Same-origin redirect — Browser sendet das frisch gesetzte Cookie mit.
+        window.location.replace('/');
+        return;
+      }
+      err.textContent = res.status === 401 ? 'Passwort falsch.' : `Fehler ${res.status}.`;
+      pw.value = '';
+      pw.focus();
+    } catch (e) {
+      err.textContent = 'Netzwerkfehler — bitte erneut versuchen.';
+    } finally {
+      btn.disabled = false;
+    }
+  });
+</script>
+</body>
+</html>

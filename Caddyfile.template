@@ -1,0 +1,130 @@
+# AgentBox – Single-Port-Routing (entrypoint-gerendert)
+#
+# Diese Datei ist ein Template. entrypoint.sh ersetzt die Platzhalter beim
+# Containerstart und schreibt das Ergebnis nach /home/agent/.config/caddy/Caddyfile:
+#   __SITE_ADDRESS__       z.B. ":8080" (HTTP) oder "https://agentbox.local:8443" (HTTPS)
+#   __TLS_BLOCK__          leer (HTTP) oder "tls internal" oder "tls /pfad/cert /pfad/key"
+#   __AUTO_HTTPS__         "auto_https off" (HTTP-Mode) oder "auto_https disable_redirects" (HTTPS-Mode)
+#
+# Routing:
+#   /login(.html)?        → statische Login-Seite (ohne Auth)
+#   /api/login            → agent-api: Passwort prüfen, Session-Cookie setzen
+#   /api/logout           → agent-api: Session-Cookie löschen
+#   /api/auth-check       → agent-api: Cookie validieren (nur intern via forward_auth)
+#   /api/events           → SSE-Stream zu files-api (kein Buffering, kein gzip)
+#   /api/smb-info         → agent-api (SMB-Verbindungsinfo)
+#   /api/features         → agent-api (Status-Flags für die UI)
+#   /api/*                → files-api (HTTP)
+#   /terminal/*           → ttyd (WebSocket)
+#   /                     → statische Tab-Shell aus /srv (gzip)
+#
+# Auth-Modell: Session-Cookie. agent-api setzt einen HMAC-signierten Cookie
+# bei erfolgreichem Login. Caddy prüft den Cookie via forward_auth bei jeder
+# geschützten Anfrage und reicht Browser-Navigationen ohne Cookie an /login
+# weiter; API-Aufrufe ohne Cookie bekommen 401. Details:
+# docs/developers/operations/authentifizierung.md
+
+{
+	admin off
+	persist_config off
+	__AUTO_HTTPS__
+}
+
+(authcheck) {
+	forward_auth 127.0.0.1:8001 {
+		uri /api/auth-check
+		copy_headers Cookie Accept
+	}
+}
+
+__SITE_ADDRESS__ {
+	__TLS_BLOCK__
+
+	# Login-bezogene Routen: bewusst ohne Auth-Schutz.
+	handle /login {
+		root * /srv
+		rewrite * /login.html
+		file_server
+	}
+	handle /login.html {
+		root * /srv
+		file_server
+	}
+	handle /api/login {
+		reverse_proxy 127.0.0.1:8001
+	}
+	handle /api/logout {
+		reverse_proxy 127.0.0.1:8001
+	}
+	handle /api/auth-check {
+		reverse_proxy 127.0.0.1:8001
+	}
+
+	# Statische Public-Assets für die Login-Seite: Logo, Favicon, Open Props,
+	# SVG-Icons. Alles harmloses Branding — kein Auth-Schutz nötig, und ohne
+	# diese Freigabe wäre die Login-Seite vor dem Login ohne Styling.
+	handle /assets/* {
+		root * /srv
+		header Cache-Control "no-cache"
+		file_server
+	}
+	handle /icons/* {
+		root * /srv
+		header Cache-Control "no-cache"
+		file_server
+	}
+
+	@sse path /api/events
+
+	# SSE-Stream: kein Buffering. encode-Direktive bewusst NICHT in
+	# diesem Block – sonst hält Caddy den Stream zur Komprimierung an.
+	handle @sse {
+		import authcheck
+		reverse_proxy 127.0.0.1:8000 {
+			flush_interval -1
+			transport http {
+				read_timeout 24h
+			}
+		}
+	}
+
+	handle /terminal* {
+		import authcheck
+		reverse_proxy 127.0.0.1:7681
+	}
+
+	# agent-api: SMB-Verbindungsinfo, getrennt von der Files-API.
+	handle /api/smb-info {
+		import authcheck
+		reverse_proxy 127.0.0.1:8001
+	}
+
+	# agent-api: Status-Flags ("was ist in dieser Box aktiv"), erweiterbar
+	# um Skills, Agenten etc. Liegt bei agent-api, weil es Env-Variablen
+	# und Agent-State liest — die Files-API kennt diese Sicht nicht.
+	handle /api/features {
+		import authcheck
+		reverse_proxy 127.0.0.1:8001
+	}
+
+	handle /api/* {
+		import authcheck
+		reverse_proxy 127.0.0.1:8000
+	}
+
+	handle {
+		import authcheck
+		encode gzip
+		root * /srv
+		# Frontend ist unbundled und ohne Hash-Suffix: Browser muss bei
+		# jedem Reload revalidieren, sonst hängen Updates fest. ETag bleibt
+		# aktiv (file_server setzt es), 304 ist also weiterhin möglich.
+		header Cache-Control "no-cache"
+		file_server
+	}
+
+	log {
+		output stdout
+		format console
+	}
+}

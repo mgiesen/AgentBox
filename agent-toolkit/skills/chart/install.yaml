@@ -1,0 +1,4 @@
+runtime:
+  apt:
+    - python3-matplotlib
+    - python3-numpy

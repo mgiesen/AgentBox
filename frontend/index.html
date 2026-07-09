@@ -1,0 +1,131 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>AgentBox</title>
+<link rel="icon" type="image/svg+xml" href="/assets/favicon.svg">
+<link rel="stylesheet" href="/assets/open-props.min.css">
+<link rel="stylesheet" href="/css/app.css">
+</head>
+<body>
+<header>
+  <div class="brand">
+    <img src="/assets/logo.svg" alt="AgentBox" width="28" height="28">
+  </div>
+  <div class="title-menu" id="title-menu">
+    <button class="app-title" id="title-menu-trigger" type="button" aria-haspopup="menu" aria-expanded="false" title="Menü öffnen">
+      <span class="app-title-text">Agent<span class="accent">Box</span></span>
+      <svg class="app-title-caret" width="14" height="14" aria-hidden="true"><use href="/icons/sprite.svg#chevron-down"/></svg>
+    </button>
+    <div class="title-menu-list" id="title-menu-list" role="menu" hidden>
+      <button class="title-menu-item" id="tools-btn" type="button" role="menuitem">
+        <svg class="title-menu-item-icon" width="16" height="16" aria-hidden="true"><use href="/icons/sprite.svg#wrench"/></svg>
+        <span>Werkzeugübersicht</span>
+      </button>
+      <button class="title-menu-item" id="smb-btn" type="button" role="menuitem">
+        <svg class="title-menu-item-icon" width="16" height="16" aria-hidden="true"><use href="/icons/sprite.svg#hard-drive"/></svg>
+        <span>Workspace als Netzlaufwerk</span>
+      </button>
+      <button class="title-menu-item" id="docs-btn" type="button" role="menuitem">
+        <svg class="title-menu-item-icon" width="16" height="16" aria-hidden="true"><use href="/icons/sprite.svg#book-open"/></svg>
+        <span>Dokumentation</span>
+      </button>
+      <a class="title-menu-item" id="github-link" role="menuitem"
+         href="https://github.com/mgiesen/AgentBox"
+         target="_blank" rel="noopener noreferrer">
+        <svg class="title-menu-item-icon" width="16" height="16" aria-hidden="true"><use href="/icons/sprite.svg#brand-github"/></svg>
+        <span>GitHub-Projekt</span>
+      </a>
+    </div>
+  </div>
+  <div class="header-actions">
+    <button class="icon-btn" id="settings-btn" type="button" title="OpenCode-Konfiguration">
+      <svg class="icon" width="20" height="20" aria-hidden="true"><use href="/icons/sprite.svg#settings"/></svg>
+    </button>
+    <button class="icon-btn icon-btn--folder" id="sidebar-toggle" aria-pressed="true" title="Agent-Dateisystem ein-/ausblenden">
+      <svg class="icon icon--folder-open" width="20" height="20" aria-hidden="true"><use href="/icons/sprite.svg#folder-open"/></svg>
+      <svg class="icon icon--folder-closed" width="20" height="20" aria-hidden="true"><use href="/icons/sprite.svg#folder"/></svg>
+    </button>
+    <button class="icon-btn" id="logout-btn" title="Abmelden">
+      <svg class="icon" width="20" height="20" aria-hidden="true"><use href="/icons/sprite.svg#log-out"/></svg>
+    </button>
+  </div>
+</header>
+<main>
+  <section class="terminal">
+    <iframe src="/terminal/" title="Agent-Terminal" allow="clipboard-read; clipboard-write"></iframe>
+  </section>
+  <aside class="sidebar" id="sidebar" data-open aria-label="Agent-Dateisystem">
+    <div class="sidebar-inner">
+      <div class="sidebar-header">
+        <div class="sidebar-header-left">
+          <span class="sidebar-title">Agent-Dateisystem</span>
+          <span class="sidebar-meta" id="files-status">…</span>
+        </div>
+        <div class="sidebar-header-actions">
+          <button class="action-btn action-btn--danger" id="clear-workspace-btn" type="button" title="Workspace leeren – alle Dateien und Ordner löschen" aria-label="Workspace leeren">
+            <svg class="icon" width="16" height="16" aria-hidden="true"><use href="/icons/sprite.svg#trash"/></svg>
+          </button>
+        </div>
+      </div>
+
+      <div class="sidebar-actionbar">
+        <div class="search-field" id="search-field">
+          <svg class="search-icon icon" width="14" height="14" aria-hidden="true"><use href="/icons/sprite.svg#search"/></svg>
+          <input type="search" id="files-search" placeholder="Filtern …" aria-label="Dateien filtern" autocomplete="off" spellcheck="false">
+          <button class="search-clear" id="search-clear-btn" type="button" hidden aria-label="Filter leeren">
+            <svg class="icon" width="12" height="12" aria-hidden="true"><use href="/icons/sprite.svg#x"/></svg>
+          </button>
+        </div>
+      </div>
+
+      <div class="files-list" id="files-list" tabindex="0" role="tree" aria-label="Dateien">
+        <div class="drop-overlay">Dateien hier ablegen</div>
+      </div>
+
+      <div class="selection-bar" id="selection-bar" hidden>
+        <button class="sel-clear" id="sel-clear-btn" type="button" title="Auswahl aufheben" aria-label="Auswahl aufheben">
+          <svg class="icon" width="14" height="14" aria-hidden="true"><use href="/icons/sprite.svg#x"/></svg>
+        </button>
+        <span class="sel-count" id="sel-count">0 ausgewählt</span>
+        <div class="sel-actions">
+          <button class="sel-btn" id="bulk-download-btn" type="button" title="Herunterladen" aria-label="Herunterladen">
+            <svg class="icon" width="14" height="14" aria-hidden="true"><use href="/icons/sprite.svg#download"/></svg>
+          </button>
+          <button class="sel-btn" id="bulk-copy-paths-btn" type="button" title="Pfade kopieren (für die KI)" aria-label="Pfade kopieren">
+            <svg class="icon" width="14" height="14" aria-hidden="true"><use href="/icons/sprite.svg#copy"/></svg>
+          </button>
+          <button class="sel-btn sel-btn-danger" id="bulk-delete-btn" type="button" title="Löschen" aria-label="Löschen">
+            <svg class="icon" width="14" height="14" aria-hidden="true"><use href="/icons/sprite.svg#trash"/></svg>
+          </button>
+        </div>
+      </div>
+
+      <div class="sidebar-footer" id="sidebar-footer">
+        <button class="btn btn-sm btn-ghost" id="new-folder-btn" type="button" title="Ordner erstellen">
+          <svg class="icon" width="16" height="16" aria-hidden="true"><use href="/icons/sprite.svg#folder-plus"/></svg>
+          <span>Ordner erstellen</span>
+        </button>
+        <button class="btn btn-sm btn-ghost" id="upload-btn" type="button" title="Datei(en) hochladen">
+          <svg class="icon" width="16" height="16" aria-hidden="true"><use href="/icons/sprite.svg#upload"/></svg>
+          <span>Hochladen</span>
+        </button>
+      </div>
+
+      <div class="upload-progress" id="upload-progress" aria-live="polite">
+        <div class="upload-progress-info">
+          <span class="upload-progress-text"></span>
+          <span class="upload-progress-pct">0&nbsp;%</span>
+        </div>
+        <div class="upload-progress-bar"><div></div></div>
+      </div>
+
+      <input type="file" id="file-input" multiple hidden>
+    </div>
+  </aside>
+</main>
+
+<script type="module" src="/js/app.js"></script>
+</body>
+</html>

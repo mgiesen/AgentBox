@@ -1,0 +1,15 @@
+runtime:
+  apt:
+    - ghostscript
+    - pandoc
+    - xz-utils
+  github:
+    - name: typst
+      repo: typst/typst
+      release: latest
+      asset: typst-{arch}-unknown-linux-musl.tar.xz
+      extract: typst-{arch}-unknown-linux-musl/typst
+      install_as: typst
+      arch:
+        amd64: x86_64
+        arm64: aarch64

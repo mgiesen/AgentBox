@@ -1,0 +1,7 @@
+# MkDocs 1.6.1 verliert mit Click 8.3.x beim `mkdocs serve` das Dateiwatching.
+# Live-Reload und manuelle Browser-Reloads gegen den Dev-Server funktionieren
+# dann nicht mehr. Bis ein kompatibles MkDocs-Update bewusst getestet wurde,
+# Click unter 8.3 halten.
+mkdocs==1.6.1
+mkdocs-material==9.7.6
+click==8.2.1
